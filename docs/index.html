@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EET 2.0 pro PHP – knihovna pro evidenci tržeb od 2027</title>
+<meta name="description" content="PHP knihovna pro EET 2.0: podpis WS-Security, odeslání tržby, ověření potvrzení, fronta při výpadku a automatická obnova certifikátu. Laravel i Nette. Otestováno proti Playgroundu finanční správy.">
+<meta name="keywords" content="EET 2.0, EET 2.0 PHP, evidence tržeb 2027, EET knihovna, EET API, pokladní certifikát, Laravel EET, Nette EET">
+<link rel="canonical" href="https://jakubsilny.github.io/eet2-php/">
+<meta property="og:title" content="EET 2.0 pro PHP">
+<meta property="og:description" content="Napojení na EET 2.0 za 10 minut. Bez SOAPu, bez trápení s certifikáty.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230f766e'/><text x='16' y='22' font-size='14' font-family='sans-serif' font-weight='700' fill='white' text-anchor='middle'>EET</text></svg>">
+<style>
+:root {
+  --bg: #fbfaf8; --surface: #ffffff; --text: #1c1917; --muted: #57534e; --line: #e7e5e4;
+  --accent: #0f766e; --accent-ink: #ffffff; --accent-soft: #ccfbf1; --code-bg: #1c1917; --code-text: #f5f5f4;
+  --warn: #b45309;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c0a09; --surface: #1c1917; --text: #f5f5f4; --muted: #a8a29e; --line: #292524;
+    --accent: #2dd4bf; --accent-ink: #042f2e; --accent-soft: #134e4a; --code-bg: #000000; --code-text: #e7e5e4;
+    --warn: #fbbf24;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+header { padding: 20px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.logo { font-weight: 800; letter-spacing: -.02em; text-decoration: none; color: var(--text); }
+.logo span { color: var(--accent); }
+nav a { margin-left: 18px; text-decoration: none; color: var(--muted); font-size: 15px; }
+.hero { padding: 48px 0 32px; }
+.badge { display: inline-block; background: var(--accent-soft); color: var(--text); border-radius: 999px; padding: 4px 12px; font-size: 14px; font-weight: 600; }
+h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.08; letter-spacing: -.03em; margin: 18px 0 16px; max-width: 16ch; }
+.lead { font-size: 20px; color: var(--muted); max-width: 60ch; margin: 0 0 28px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 650; text-decoration: none; border: 1px solid var(--line); color: var(--text); background: var(--surface); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+pre { background: var(--code-bg); color: var(--code-text); padding: 20px; border-radius: 12px; overflow-x: auto; font: 14px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; margin: 0; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .92em; }
+.c { color: #a8a29e; } .s { color: #5eead4; } .k { color: #fda4af; }
+section { padding: 48px 0; border-top: 1px solid var(--line); }
+h2 { font-size: clamp(26px, 4vw, 34px); letter-spacing: -.02em; margin: 0 0 12px; }
+.sub { color: var(--muted); margin: 0 0 28px; max-width: 65ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+.card h3 { margin: 0 0 6px; font-size: 18px; }
+.card p { margin: 0; color: var(--muted); font-size: 15.5px; }
+.timeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.timeline div { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; }
+.timeline b { display: block; }
+.timeline span { color: var(--muted); font-size: 15px; }
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; align-items: stretch; }
+.plan { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px; display: flex; flex-direction: column; }
+.plan.hl { border: 2px solid var(--accent); }
+.plan h3 { margin: 0; font-size: 20px; }
+.price { font-size: 38px; font-weight: 800; letter-spacing: -.02em; margin: 10px 0 2px; }
+.price small { font-size: 16px; font-weight: 500; color: var(--muted); }
+.plan ul { padding-left: 20px; margin: 14px 0 22px; color: var(--muted); font-size: 15.5px; flex: 1; }
+.plan li { margin: 6px 0; }
+.plan .btn { text-align: center; }
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; margin-bottom: 10px; }
+summary { cursor: pointer; font-weight: 650; }
+details p { color: var(--muted); margin: 10px 0 0; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+@media (max-width: 800px) { .two { grid-template-columns: 1fr; } nav { display: none; } }
+footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="#">EET<span>2</span> pro PHP</a>
+    <nav><a href="#jak">Jak to funguje</a><a href="#pro">Pro</a><a href="#cenik">Ceník</a><a href="#faq">FAQ</a><a href="https://github.com/JakubSilny/eet2-php">GitHub</a></nav>
+  </header>
+
+  <div class="hero">
+    <span class="badge">EET 2.0 startuje 1. 1. 2027</span>
+    <h1>Napojte svůj PHP systém na EET 2.0 za 10 minut</h1>
+    <p class="lead">Knihovna, která za vás vyřeší SOAP, podpis WS-Security, staré šifrování certifikátů z DIS+ i ověření potvrzení od finanční správy. Otestováno proti oficiálnímu Playgroundu.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/JakubSilny/eet2-php">Začít zdarma</a>
+      <a class="btn" href="#cenik">Pro pro produkci</a>
+    </div>
+  </div>
+
+  <section id="jak">
+    <div class="two">
+      <div>
+        <h2>Jedno volání, zpátky POK</h2>
+        <p class="sub">Předáte údaje o tržbě a zpátky dostanete potvrzovací kód. O zbytek se postará knihovna:</p>
+        <ul class="sub">
+          <li>sestaví a podepíše SOAP zprávu (exc-c14n, RSA-SHA256) přesně podle specifikace v4,</li>
+          <li>zkontroluje formáty položek dřív, než je EET odmítne,</li>
+          <li>ověří podpis potvrzení certifikátem GFŘ přes I.CA,</li>
+          <li>rozliší dočasné chyby (poslat znovu) od chyb dat.</li>
+        </ul>
+        <p class="sub">Bez závislostí, PHP 8.1+, licence MIT.</p>
+      </div>
+<pre><span class="c">// composer require jakubsilny/eet2</span>
+<span class="k">use</span> Eet2\Client;
+
+$eet = Client::fromP12(<span class="s">'certifikat.p12'</span>, <span class="s">'heslo'</span>,
+                       Client::PRODUCTION);
+
+$r = $eet->send([
+  <span class="s">'eic_popl'</span>    => <span class="s">'CZ12345678'</span>,
+  <span class="s">'id_jednotky'</span> => <span class="s">101</span>,
+  <span class="s">'id_pokl'</span>     => <span class="s">'POKLADNA-1'</span>,
+  <span class="s">'porad_cis'</span>   => <span class="s">'2027/000123'</span>,
+  <span class="s">'dat_trzby'</span>   => <span class="k">new</span> DateTimeImmutable(),
+  <span class="s">'celk_trzba'</span>  => <span class="s">249.90</span>,
+]);
+
+<span class="k">echo</span> $r[<span class="s">'pok'</span>];
+<span class="c">// 8398dad6-1a4c-45b0-bc35-986a62bce346-02</span></pre>
+    </div>
+  </section>
+
+  <section>
+    <h2>Na čem vývojáři u EET 2.0 ztrácí dny</h2>
+    <p class="sub">Staré knihovny z roku 2016 nefungují, protože rozhraní v4 je nekompatibilní. Tohle všechno už je vyřešené:</p>
+    <div class="grid">
+      <div class="card"><h3>Certifikát z DIS+ nejde otevřít</h3><p>CA EET šifruje .p12 algoritmem RC2-40, který OpenSSL 3 (a tedy moderní PHP) odmítá. Knihovna si s tím poradí sama.</p></div>
+      <div class="card"><h3>„Neplatny podpis SOAP zpravy“</h3><p>Exkluzivní kanonizace s InclusiveNamespaces a otisk těla. Ověřeno bajt po bajtu proti vzorové zprávě finanční správy.</p></div>
+      <div class="card"><h3>Formáty položek</h3><p>Částky bez „-0.00“, časová zóna SEČ/SELČ, masky EIČ a čísel účtenek. Validuje se lokálně podle XSD.</p></div>
+      <div class="card"><h3>Dá se potvrzení věřit?</h3><p>Každé potvrzení se ověřuje: otisk těla, podpis a certifikát GFŘ s řetězcem I.CA.</p></div>
+    </div>
+  </section>
+
+  <section id="pro">
+    <h2>EET 2.0 Pro: aby to v produkci nepadalo</h2>
+    <p class="sub">Síť vypadne a certifikát za rok vyprší. Pro pohlídá obojí, abyste to nemuseli řešit v pátek večer.</p>
+    <div class="grid">
+      <div class="card"><h3>Fronta s doposíláním</h3><p>Tržba se uloží do databáze a pak odešle. Při výpadku se doručí sama, s rostoucí prodlevou a správným <code>prvni_zaslani</code>. Tabulka zároveň slouží jako evidence všech tržeb s POK.</p></div>
+      <div class="card"><h3>Automatická obnova certifikátu</h3><p>Pokladní certifikát platí 366 dní. Pro ho obnoví přes CAEET API, uloží se stávajícím heslem a nechá zálohu. Konfiguraci měnit nemusíte.</p></div>
+      <div class="card"><h3>Laravel i Nette</h3><p>Laravel: automatická registrace, <code>php artisan eet2</code> a naplánované úlohy bez další konfigurace. Nette: DI rozšíření.</p></div>
+      <div class="card"><h3>CLI a monitoring</h3><p><code>eet2 status</code> ukáže platnost certifikátu, frontu a odmítnuté tržby, a přes exit kód se dá hlídat v monitoringu.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Harmonogram EET 2.0</h2>
+    <p class="sub">Podle finanční správy.</p>
+    <div class="timeline">
+      <div><b>od 1. 7. 2026</b><span>Playground pro vývojáře</span></div>
+      <div><b>1. 11. 2026</b><span>Pokladní certifikáty v DIS+, CAEET API</span></div>
+      <div><b>1. 12. 2026</b><span>Státní aplikace MOJE EET pro malé subjekty</span></div>
+      <div><b>1. 1. 2027</b><span>Ostrý provoz</span></div>
+    </div>
+  </section>
+
+  <section id="cenik">
+    <h2>Ceník</h2>
+    <p class="sub">Jednorázová platba s aktualizacemi na rok. Verzi, kterou máte, smíte používat i potom.</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>Open source</h3>
+        <div class="price">0 €</div>
+        <ul>
+          <li>Odeslání tržby, podpis, validace</li>
+          <li>Ověření potvrzení GFŘ</li>
+          <li>Načtení certifikátů z DIS+</li>
+          <li>Licence MIT</li>
+        </ul>
+        <a class="btn" href="https://github.com/JakubSilny/eet2-php">GitHub</a>
+      </div>
+      <div class="plan hl">
+        <h3>Pro</h3>
+        <div class="price">59 € <small>/ rok</small></div>
+        <ul>
+          <li>Vše z open source</li>
+          <li>Fronta s doposíláním + evidence tržeb</li>
+          <li>Automatická obnova certifikátu</li>
+          <li>Laravel, Nette, CLI</li>
+          <li>1 projekt</li>
+        </ul>
+        <a class="btn primary" data-checkout="pro" href="#cenik">Koupit Pro</a>
+      </div>
+      <div class="plan">
+        <h3>Agency</h3>
+        <div class="price">149 € <small>/ rok</small></div>
+        <ul>
+          <li>Vše z Pro</li>
+          <li>Neomezeně projektů</li>
+          <li>Pro agentury a dodavatele pokladních systémů</li>
+        </ul>
+        <a class="btn" data-checkout="agency" href="#cenik">Koupit Agency</a>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:18px">Platbu, fakturu a DPH vyřizuje <a href="https://polar.sh">Polar.sh</a>. Přístup k repozitáři Pro dostanete ihned po zaplacení. Do 14 dnů můžete o vrácení peněz požádat bez udání důvodu.</p>
+  </section>
+
+  <section id="faq">
+    <h2>Časté dotazy</h2>
+    <details><summary>Potřebuje software pro EET 2.0 nějakou certifikaci?</summary><p>Ne. Podle finanční správy je EET 2.0 otevřený systém, pokladní software smí nabízet kdokoliv a státní certifikaci nepodléhá.</p></details>
+    <details><summary>Funguje to i se staršími verzemi PHP?</summary><p>Vyžaduje PHP 8.1 a novější s rozšířeními dom, openssl a curl, která bývají standardně k dispozici.</p></details>
+    <details><summary>Jak otestuji napojení bez skutečného certifikátu?</summary><p>Použijte <code>Client::PLAYGROUND</code> a veřejné testovací certifikáty finanční správy. Testy knihovny si je stáhnou samy.</p></details>
+    <details><summary>Musím tisknout POK na účtenku?</summary><p>Co musí být na účtence, stanoví zákon a finanční správa. Knihovna vám POK vždy vrátí a Pro ho uloží k tržbě.</p></details>
+    <details><summary>Co když EET nebo internet nefunguje?</summary><p>Knihovna vrátí dočasnou chybu (<code>isRetryable()</code>) a tržbu je potřeba odeslat později. Pro to dělá automaticky.</p></details>
+    <details><summary>Je to oficiální produkt finanční správy?</summary><p>Ne, jde o nezávislou knihovnu. Za splnění evidenční povinnosti odpovídá poplatník.</p></details>
+  </section>
+
+  <footer>
+    Jakub Silný, IČO 24033162 · <a href="https://github.com/JakubSilny/eet2-php">GitHub</a> · Není oficiálním produktem Finanční správy ČR.
+  </footer>
+</div>
+<script>
+// Odkazy na platbu Polar.sh - po založení produktů stačí vyplnit sem.
+const CHECKOUT = { pro: '', agency: '' };
+document.querySelectorAll('[data-checkout]').forEach(a => {
+  const url = CHECKOUT[a.dataset.checkout];
+  if (url) { a.href = url; } else { a.textContent = 'Brzy v prodeji'; a.removeAttribute('href'); a.style.opacity = .6; }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+    "name": "jakubsilny/eet2",
+    "description": "Klient pro EET 2.0 (evidence tržeb od 2027) - podpis WS-Security, odeslání, zpracování odpovědí. Bez závislostí.",
+    "keywords": ["eet", "eet2", "evidence trzeb", "financni sprava", "pokladna"],
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "ext-dom": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*"
+    },
+    "autoload": { "psr-4": { "Eet2\\": "src/" } },
+    "scripts": {
+        "test": "php -d zend.assertions=1 -d assert.exception=1 tests/check.php",
+        "test-live": "php -d zend.assertions=1 -d assert.exception=1 tests/playground.php"
+    }
+}
