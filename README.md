@@ -14,6 +14,23 @@ Web a dokumentace: **https://jakubsilny.github.io/eet2-php/**
 
 > **EET 2.0 Pro** přidává frontu s automatickým doposíláním při výpadku, automatickou obnovu pokladního certifikátu, CLI a integraci pro Laravel a Nette. [Více na webu](https://jakubsilny.github.io/eet2-php/#pro)
 
+## Vyzkoušení za 2 minuty
+
+Bez vlastního certifikátu, proti Playgroundu finanční správy s jejími veřejnými testovacími certifikáty:
+
+```bash
+curl -LO https://eet.gov.cz/assets/cs/cmsmedia/pro-vyvojare/CAEET_Playground_2026_v1.zip && unzip CAEET_Playground_2026_v1.zip
+```
+
+```php
+$eet = Eet2\Client::fromP12('CA_EET-Playground-CZ683555118.p12', 'aaaa1111');
+print_r($eet->send([
+    'eic_popl' => 'CZ683555118', 'id_jednotky' => 101, 'id_pokl' => 'KASA1',
+    'porad_cis' => 'U-' . time(), 'dat_trzby' => new DateTimeImmutable(), 'celk_trzba' => 150,
+]));
+// pok končí na "-ff" = fiktivní kód z testovacího prostředí
+```
+
 ## Použití
 
 ```php
