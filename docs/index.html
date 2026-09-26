@@ -210,7 +210,7 @@ $r = $eet->send([
 </div>
 <script>
 // Odkazy na platbu Polar.sh - po založení produktů stačí vyplnit sem.
-const CHECKOUT = { pro: '', agency: '' };
+const CHECKOUT = { pro: 'https://buy.polar.sh/polar_cl_uSae0isRANMqZKNcvCgRyelpeKBaDgjEOAfWA4SpV3v', agency: 'https://buy.polar.sh/polar_cl_JQks7sC1MJMmP0eHqolNSqlQPJ8kJJ9nGU6Bv4czEFs' };
 document.querySelectorAll('[data-checkout]').forEach(a => {
   const url = CHECKOUT[a.dataset.checkout];
   if (url) { a.href = url; } else { a.textContent = 'Brzy v prodeji'; a.removeAttribute('href'); a.style.opacity = .6; }
